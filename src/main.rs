@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::cmp::Ordering::{Equal, Greater};
 use std::io;
 
@@ -17,12 +18,7 @@ fn main() {
         );
         io::stdin().read_line(&mut guess).expect("error");
 
-        let x: u32 = match guess.trim().parse() {
-            Ok(number) => number,
-            Err(_) => 0,
-        };
-
-        let ordering = x.cmp(&secret_number);
+        let ordering = compare(&secret_number, &guess);
         if ordering == Equal {
             println!("correct");
             break;
@@ -32,4 +28,12 @@ fn main() {
             println!("too low");
         }
     }
+}
+
+fn compare(secret_number: &u32, guess: &String) -> Ordering {
+    let guess: u32 = match guess.trim().parse() {
+        Ok(number) => number,
+        Err(_) => 0,
+    };
+    guess.cmp(&secret_number)
 }
