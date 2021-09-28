@@ -38,4 +38,43 @@ fn handle_connection(mut stream: TcpStream) {
 
 /////////////////////////////// sandbox //////////////////////////////////////////////
 
-fn sanbox() {}
+fn sanbox() {
+    let immutable_foo = Foo { value: 0 };
+    let immutable_bar = Foo { value: 10 };
+    // immutable_foo.mutate(); // impossible
+    // immutable_bar.mutate(); // impossible
+    println!("immutable_foo: {:?}", immutable_foo);
+    println!("immutable_bar: {:?}", immutable_bar);
+
+    // 1. mutability can change after passing to a function
+
+    let returned_immutable_foo = fn_taking_mutable_foo(immutable_foo); // weird but possible
+
+    // I guess the above is safe as this is impossible
+    // println!("immutable_foo: {:?}", immutable_foo);
+
+    println!("returned_immutable_foo: {:?}", returned_immutable_foo); // possible
+
+    // 2. mutability can change after reassignment
+
+    let mut mutable_bar = immutable_bar;
+    mutable_bar.mutate();
+    println!("mutable_bar: {:?}", mutable_bar);
+}
+
+fn fn_taking_mutable_foo(mut sth: Foo) -> Foo {
+    sth.mutate();
+    sth
+}
+
+#[derive(Debug)]
+struct Foo {
+    value: i32,
+}
+
+impl Foo {
+    fn mutate(&mut self) -> () {
+        println!("mutating {}", self.value);
+        self.value = self.value + 1;
+    }
+}
