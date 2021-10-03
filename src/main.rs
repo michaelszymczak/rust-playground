@@ -1,4 +1,5 @@
-use std::io::Read;
+use std::fs;
+use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 
 // mod guessgame;
@@ -29,5 +30,20 @@ fn handle_connection(mut stream: TcpStream) {
     println!("Handling {}", stream.peer_addr().unwrap());
     let mut buffer = [0; 1024];
     stream.read(&mut buffer).unwrap();
-    println!("Request: {}", String::from_utf8_lossy(&buffer[..]));
+    println!("Request: {}", String::from_utf8_lossy(&buffer));
+
+    let response = response();
+
+    stream.write(response.as_bytes()).unwrap();
+    stream.flush().unwrap();
+
+    println!("Response: {}", response);
+}
+
+fn response() -> String {
+    let body = fs::read_to_string("hello.html").unwrap();
+    let headers = format!("Content-Length:{}", body.len());
+    let response_result = "HTTP/1.1 200 OK";
+    let response = format!("{}\r\n{}\r\n\r\n{}", response_result, headers, body);
+    response
 }
