@@ -1,6 +1,7 @@
-use std::fs;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
+use std::time::Duration;
+use std::{fs, thread};
 
 // mod guessgame;
 //
@@ -53,9 +54,13 @@ fn response(request_buffer: &[u8]) -> String {
 
 fn response_body(request_buffer: &[u8]) -> Option<String> {
     if request_buffer.starts_with(b"GET / HTTP") {
-        return Some(fs::read_to_string("hello.html").unwrap());
+        Some(fs::read_to_string("hello.html").unwrap())
+    } else if request_buffer.starts_with(b"GET /sleep HTTP") {
+        thread::sleep(Duration::from_secs(5));
+        Some(fs::read_to_string("hello.html").unwrap())
     } else if request_buffer.starts_with(b"GET /favicon.ico HTTP") {
-        return Some(String::from(""));
+        Some(String::from(""))
+    } else {
+        None
     }
-    None
 }
