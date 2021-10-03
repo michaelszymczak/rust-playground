@@ -6,7 +6,14 @@ use std::{fs, thread};
 pub struct ThreadPool;
 
 impl ThreadPool {
-    pub fn new(_size: usize) -> ThreadPool {
+    ///
+    /// Creates a thread pool
+    ///
+    /// # Panics
+    ///
+    /// The `new` requires `max_num_threads` greater than zero
+    pub fn new(max_num_threads: usize) -> ThreadPool {
+        assert!(max_num_threads > 0);
         ThreadPool
     }
     pub fn execute<F>(&self, f: F)
