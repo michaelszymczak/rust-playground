@@ -3,7 +3,9 @@ use std::net::TcpStream;
 use std::time::Duration;
 use std::{fs, thread};
 
-pub struct ThreadPool;
+pub struct ThreadPool {
+    _workers: Vec<Worker>,
+}
 
 impl ThreadPool {
     ///
@@ -14,13 +16,34 @@ impl ThreadPool {
     /// The `new` requires `max_num_threads` greater than zero
     pub fn new(max_num_threads: usize) -> ThreadPool {
         assert!(max_num_threads > 0);
-        ThreadPool
+
+        let mut workers = Vec::with_capacity(max_num_threads);
+
+        for id in 0..max_num_threads {
+            workers.push(Worker::new(id))
+        }
+
+        ThreadPool { _workers: workers }
     }
     pub fn execute<F>(&self, f: F)
     where
         F: FnOnce() + Send + 'static,
     {
         thread::spawn(f);
+    }
+}
+
+struct Worker {
+    _id: usize,
+    _thread: thread::JoinHandle<()>,
+}
+
+impl Worker {
+    pub fn new(id: usize) -> Worker {
+        Worker {
+            _id: id,
+            _thread: thread::spawn(|| {}),
+        }
     }
 }
 
