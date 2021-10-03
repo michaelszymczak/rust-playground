@@ -3,6 +3,20 @@ use std::net::{TcpListener, TcpStream};
 use std::time::Duration;
 use std::{fs, thread};
 
+struct ThreadPool;
+
+impl ThreadPool {
+    pub fn new(_size: usize) -> ThreadPool {
+        ThreadPool
+    }
+    pub fn execute<F>(&self, f: F)
+    where
+        F: FnOnce() + Send + 'static,
+    {
+        thread::spawn(f);
+    }
+}
+
 // mod guessgame;
 //
 // fn main() {
@@ -13,9 +27,10 @@ fn main() {
     let port = "7878";
     println!("listening on {}", port);
     let listener = TcpListener::bind(format!("{}:{}", "127.0.0.1", port)).unwrap();
+    let pool = ThreadPool::new(4);
     for tcp_accept_result in listener.incoming() {
         let stream = tcp_accept_result.unwrap();
-        thread::spawn(|| {
+        pool.execute(|| {
             println!(
                 "Connection {} <-> {} established",
                 stream.local_addr().unwrap(),
