@@ -31,28 +31,23 @@ fn handle_connection(mut stream: TcpStream) {
     let mut buffer = [0; 1024];
     let size = stream.read(&mut buffer).unwrap();
     println!("Request: {}", String::from_utf8_lossy(&buffer[..size]));
-
-    let response = response(&buffer);
-    match response {
-        Some(response_content) => {
-            stream.write(response_content.as_bytes()).unwrap();
-            stream.flush().unwrap();
-
-            println!("Response: {}", response_content);
-        }
-        None => println!("No response"),
-    }
+    stream.write(response(&buffer).as_bytes()).unwrap();
+    stream.flush().unwrap();
 }
 
-fn response(request_buffer: &[u8]) -> Option<String> {
+fn response(request_buffer: &[u8]) -> String {
     return match response_body(request_buffer) {
         Some(body) => {
             let headers = format!("Content-Length:{}", body.len());
             let response_result = "HTTP/1.1 200 OK";
-            let response = format!("{}\r\n{}\r\n\r\n{}", response_result, headers, body);
-            Some(response)
+            format!("{}\r\n{}\r\n\r\n{}", response_result, headers, body)
         }
-        None => None,
+        None => {
+            let body = fs::read_to_string("404.html").unwrap();
+            let headers = format!("Content-Length:{}", body.len());
+            let response_result = "HTTP/1.1 404 NOT FOUND";
+            format!("{}\r\n{}\r\n\r\n{}", response_result, headers, body)
+        }
     };
 }
 
