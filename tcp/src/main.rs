@@ -1,5 +1,5 @@
-use hello::ThreadPool;
 use std::net::TcpListener;
+use tcp::ThreadPool;
 
 // mod guessgame;
 //
@@ -21,7 +21,7 @@ fn main() {
                 stream.peer_addr().unwrap()
             );
 
-            hello::handle_connection(stream);
+            tcp::handle_connection(stream);
         });
     }
     println!("done")

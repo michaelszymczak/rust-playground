@@ -1,2 +1,2 @@
 build:
-	cargo check && cargo build --release --all-features
+	cargo check && cargo test --all && cargo build --release --all-features
